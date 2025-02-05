@@ -29,6 +29,9 @@ RUN npm install --production
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
+# Copy Google Cloud credentials
+COPY rxai-450010-dcef583435c8.json /app/
+
 # Expose port 8000
 EXPOSE 8000
 

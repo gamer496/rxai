@@ -13,6 +13,15 @@ export class Prescription {
   @Column()
   url: string;
 
+  @Column('json', { nullable: true })
+  parsedData: {
+    customerName: string;
+    doctorName: string;
+    date: Date;
+    medicineName: string;
+    confidence: number;
+  };
+
   @ManyToOne(() => Doctor, doctor => doctor.prescriptions)
   doctor: Doctor;
 

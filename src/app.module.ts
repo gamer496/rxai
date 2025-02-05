@@ -8,6 +8,7 @@ import { Doctor } from './doctors/entities/doctor.entity';
 import { Prescription } from './prescriptions/entities/prescription.entity';
 import { AppController } from './app.controller';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PrescriptionsModule } from './prescriptions/prescriptions.module';
     CustomersModule,
     DoctorsModule,
     PrescriptionsModule,
+    SharedModule,
   ],
   controllers: [AppController],
 })

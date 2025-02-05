@@ -37,6 +37,9 @@ lerna-debug.log*
 .env.*
 !.env.example
 
+# Credentials
+rxai-450010-dcef583435c8.json
+
 # Docker
 .docker/
 
