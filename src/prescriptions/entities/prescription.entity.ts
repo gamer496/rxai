@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 import { Customer } from '../../customers/entities/customer.entity';
+import { MedicineType } from '../../shared/enums/medicine-type.enum';
 
 @Entity()
 export class Prescription {
@@ -21,6 +22,28 @@ export class Prescription {
     medicineName: string;
     confidence: number;
   };
+
+  @Column({
+    type: 'enum',
+    enum: MedicineType,
+    default: MedicineType.BIRTH_CONTROL
+  })
+  medicineType: MedicineType;
+
+  @Column({ type: 'text', nullable: true })
+  transcript: string;
+
+  @Column({ 
+    type: 'timestamp',
+    nullable: true
+  })
+  generationDate: Date;
+
+  @Column({ 
+    type: 'boolean',
+    default: false
+  })
+  generated: boolean;
 
   @ManyToOne(() => Doctor, doctor => doctor.prescriptions)
   doctor: Doctor;

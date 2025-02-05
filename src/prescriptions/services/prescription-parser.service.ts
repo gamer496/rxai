@@ -4,12 +4,14 @@ import { LoggerService } from '../../shared/services/logger.service';
 import * as pdfParse from 'pdf-parse';
 import axios from 'axios';
 import OpenAI from 'openai';
+import { MedicineType } from '../../shared/enums/medicine-type.enum';
 
 export interface ParsedPrescription {
   customerName: string;
   doctorName: string;
   date: Date;
   medicineName: string;
+  medicineType: MedicineType;
   confidence: number;
 }
 
@@ -102,7 +104,8 @@ export class PrescriptionParserService {
 
       return {
         ...response,
-        date: new Date(response.date)
+        date: new Date(response.date),
+        medicineType: MedicineType.BIRTH_CONTROL
       };
     } catch (error) {
       this.logger.error('Failed to parse text with AI', error);
