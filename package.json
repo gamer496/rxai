@@ -1,7 +1,7 @@
 {
-  "name": "prescription-api",
+  "name": "rxai",
   "version": "0.0.1",
-  "description": "Prescription API with NestJS",
+  "description": "AI-powered prescription automation system",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
