@@ -29,9 +29,6 @@ RUN npm install --production
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Copy the SQLite database file if it exists
-COPY --from=builder /app/db.sqlite ./db.sqlite
-
 # Expose port 8000
 EXPOSE 8000
 
