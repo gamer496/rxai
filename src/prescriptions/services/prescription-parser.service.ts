@@ -27,9 +27,9 @@ export class PrescriptionParserService {
     });
   }
 
-  async testVision(pdfUrl: string): Promise<string> {
-    const extractedText = await this.extractTextFromPdf(pdfUrl);
-    return extractedText;
+  async testParsing(pdfUrl: string): Promise<string> {
+    const extractedText = await this.parse(pdfUrl);
+    return JSON.stringify(extractedText);
   }
 
   async parse(pdfUrl: string): Promise<ParsedPrescription> {
@@ -65,7 +65,7 @@ export class PrescriptionParserService {
       const prompt = `
         Extract the following information from this prescription text:
         - Patient/Customer Name
-        - Doctor Name
+        - Doctor Name or Clinic Name (if doctor name is not available, extract clinic/hospital name)
         - Prescription Date (in YYYY-MM-DD format)
         - Medicine Name(s)
 
@@ -75,7 +75,7 @@ export class PrescriptionParserService {
         Return the data in JSON format with these exact keys:
         {
           "customerName": string,
-          "doctorName": string,
+          "doctorName": string, // Use clinic name if doctor name is not found
           "date": string (YYYY-MM-DD),
           "medicineName": string,
           "confidence": number (0-1)
@@ -87,7 +87,7 @@ export class PrescriptionParserService {
         messages: [
           {
             role: "system",
-            content: "You are a medical prescription parser. Extract key information from prescriptions and return it in JSON format."
+            content: "You are a medical prescription parser. Extract key information from prescriptions and return it in JSON format. If doctor's name is not found, use clinic/hospital name instead."
           },
           {
             role: "user",
