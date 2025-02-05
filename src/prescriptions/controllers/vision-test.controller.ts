@@ -13,7 +13,7 @@ export class VisionTestController {
 
   @Get()
   async testVision(@Query('url') url: string) {
-    this.logger.log(`Testing Vision AI with URL: ${url}`);
+    this.logger.log(`Testing PDF parsing with URL: ${url}`);
     const extractedText = await this.parserService.testVision(url);
     return { text: extractedText };
   }

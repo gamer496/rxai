@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ImageAnnotatorClient } from '@google-cloud/vision';
 import { LoggerService } from '../../shared/services/logger.service';
+import * as pdfParse from 'pdf-parse';
+import axios from 'axios';
+import OpenAI from 'openai';
 
 export interface ParsedPrescription {
   customerName: string;
@@ -13,54 +15,98 @@ export interface ParsedPrescription {
 
 @Injectable()
 export class PrescriptionParserService {
-  private visionClient: ImageAnnotatorClient;
+  private openai: OpenAI;
 
   constructor(
     private configService: ConfigService,
     private logger: LoggerService
   ) {
-    this.visionClient = new ImageAnnotatorClient({
-      keyFilename: configService.get<string>('google.credentials'),
-    });
     this.logger.setContext('PrescriptionParserService');
+    this.openai = new OpenAI({
+      apiKey: this.configService.get<string>('openai.apiKey'),
+    });
   }
 
-  async testVision(imageUrl: string): Promise<string> {
-    const extractedText = await this.extractTextFromImage(imageUrl);
+  async testVision(pdfUrl: string): Promise<string> {
+    const extractedText = await this.extractTextFromPdf(pdfUrl);
     return extractedText;
   }
 
-  async parse(imageUrl: string): Promise<ParsedPrescription> {
-    this.logger.log(`Starting prescription parsing for image: ${imageUrl}`);
-    const extractedText = await this.extractTextFromImage(imageUrl);
+  async parse(pdfUrl: string): Promise<ParsedPrescription> {
+    this.logger.log(`Starting prescription parsing for PDF: ${pdfUrl}`);
+    const extractedText = await this.extractTextFromPdf(pdfUrl);
     const parsedData = await this.parseTextWithAI(extractedText);
     return parsedData;
   }
 
-  private async extractTextFromImage(imageUrl: string): Promise<string> {
+  private async extractTextFromPdf(pdfUrl: string): Promise<string> {
     try {
-      this.logger.debug('Extracting text from image using Google Vision API');
-      const [result] = await this.visionClient.textDetection(imageUrl);
-      const detections = result.textAnnotations;
-      this.logger.debug("detections detected", JSON.stringify(detections));
-      const text = detections?.[0]?.description || '';
-      this.logger.debug(`Text extraction completed. Characters extracted: ${text.length}`);
-      return text;
+      this.logger.debug('Downloading PDF file');
+      const response = await axios.get(pdfUrl, {
+        responseType: 'arraybuffer'
+      });
+
+      this.logger.debug('Extracting text from PDF');
+      const data = await pdfParse(response.data);
+      
+      this.logger.debug(`Text extraction completed. Characters extracted: ${data.text.length}`);
+      this.logger.log("extract data from pdf", data.text);
+      return data.text;
     } catch (error) {
-      this.logger.error('Failed to extract text from image', error.stack);
-      throw new Error('Failed to extract text from image');
+      this.logger.error('Failed to extract text from PDF', error);
+      throw new Error('Failed to extract text from PDF');
     }
   }
 
   private async parseTextWithAI(text: string): Promise<ParsedPrescription> {
-    this.logger.debug('Parsing extracted text with AI');
-    // Temporary mock implementation until OpenAI integration
-    return {
-      customerName: 'Extracted Customer Name',
-      doctorName: 'Extracted Doctor Name',
-      date: new Date(),
-      medicineName: 'Extracted Medicine Name',
-      confidence: 0.95,
-    };
+    try {
+      this.logger.debug('Parsing text with OpenAI');
+      
+      const prompt = `
+        Extract the following information from this prescription text:
+        - Patient/Customer Name
+        - Doctor Name
+        - Prescription Date (in YYYY-MM-DD format)
+        - Medicine Name(s)
+
+        Text:
+        ${text}
+
+        Return the data in JSON format with these exact keys:
+        {
+          "customerName": string,
+          "doctorName": string,
+          "date": string (YYYY-MM-DD),
+          "medicineName": string,
+          "confidence": number (0-1)
+        }
+      `;
+
+      const completion = await this.openai.chat.completions.create({
+        model: this.configService.get<string>('openai.model'),
+        messages: [
+          {
+            role: "system",
+            content: "You are a medical prescription parser. Extract key information from prescriptions and return it in JSON format."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" }
+      });
+
+      const response = JSON.parse(completion.choices[0].message.content);
+      this.logger.debug('OpenAI parsing result', response);
+
+      return {
+        ...response,
+        date: new Date(response.date)
+      };
+    } catch (error) {
+      this.logger.error('Failed to parse text with AI', error);
+      throw new Error('Failed to parse prescription with AI');
+    }
   }
 } 
