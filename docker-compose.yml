@@ -15,6 +15,10 @@ services:
       - DB_USERNAME=rxai_user
       - DB_PASSWORD=rxai_password
       - DB_DATABASE=rxai
+      - DROPBOX_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/rxai-450010-dcef583435c8.json
     restart: unless-stopped
     depends_on:
       - mysql

@@ -7,11 +7,12 @@ import { PrescriptionsService } from './prescriptions.service';
 import { CustomerPrescriptionsController } from './customer-prescriptions.controller';
 import { DoctorPrescriptionsController } from './doctor-prescriptions.controller';
 import { PrescriptionParserService } from './services/prescription-parser.service';
+import { VisionTestController } from './controllers/vision-test.controller';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Prescription, Customer, Doctor]), ConfigModule],
   providers: [PrescriptionsService, PrescriptionParserService],
-  controllers: [CustomerPrescriptionsController, DoctorPrescriptionsController],
+  controllers: [CustomerPrescriptionsController, DoctorPrescriptionsController, VisionTestController],
 })
 export class PrescriptionsModule {} 

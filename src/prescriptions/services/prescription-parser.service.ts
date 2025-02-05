@@ -25,6 +25,11 @@ export class PrescriptionParserService {
     this.logger.setContext('PrescriptionParserService');
   }
 
+  async testVision(imageUrl: string): Promise<string> {
+    const extractedText = await this.extractTextFromImage(imageUrl);
+    return extractedText;
+  }
+
   async parse(imageUrl: string): Promise<ParsedPrescription> {
     this.logger.log(`Starting prescription parsing for image: ${imageUrl}`);
     const extractedText = await this.extractTextFromImage(imageUrl);

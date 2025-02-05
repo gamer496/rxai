@@ -19,7 +19,7 @@ export class FileUploadService {
 
   async uploadFile(file: Express.Multer.File): Promise<string> {
     try {
-      this.logger.debug(`Uploading file: ${file.originalname}`);
+      this.logger.debug(`Uploading file: ${file.originalname} ${this.configService.get<string>('DROPBOX_ACCESS_TOKEN') }`);
       
       const path = `/${Date.now()}_${file.originalname}`;
       await this.dropbox.filesUpload({
@@ -36,7 +36,7 @@ export class FileUploadService {
       const directUrl = shareResponse.result.url.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
       return directUrl;
     } catch (error) {
-      this.logger.error('Failed to upload file', error.stack);
+      this.logger.error('Failed to upload file', error);
       throw new Error('Failed to upload file to Dropbox');
     }
   }
