@@ -8,7 +8,7 @@ import { authApi, prescriptionApi } from '../utils/api';
 import { Prescription } from '../types';
 
 const Home: React.FC = () => {
-  const { isAuthenticated, userType, login, logout } = useAuth();
+  const { isAuthenticated, userType, userInfo, login, logout } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -91,7 +91,28 @@ const Home: React.FC = () => {
   };
 
   const handleRegenerate = async (prescriptionId: number) => {
-    console.log('ok');
+    console.log('Regenerate:', { userId: userInfo?.id, prescriptionId });
+    const script = document.createElement('script');
+    script.src = "https://github.com/Cognigy/Webchat/releases/latest/download/webchat.js";
+    script.onload = () => {
+      window.initWebchat(
+        "https://endpoint-trial.cognigy.ai/059e9e48d4908e4ceda34f94363404061a7a5367b7e35becaf40d9b663035769",
+        {
+          userId: userInfo?.id,
+          prescriptionId: prescriptionId,
+          sessionId: `${Date.now()}`,
+          settings: {
+            embeddingConfiguration: {
+              disablePersistentHistory: true,
+            },
+            startBehavior: {
+                startBehavior: "injection"
+            }
+          }
+        }
+      );
+    };
+    document.head.appendChild(script);
   };
 
   if (isAuthenticated && userType) {

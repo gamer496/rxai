@@ -37,7 +37,7 @@ export const authApi = {
     return response.data;
   },
   getDoctorMe: async () => {
-    const response = await api.get('/doctor/me');
+    const response = await api.get('/doctors/me');
     return response.data;
   }
 };
