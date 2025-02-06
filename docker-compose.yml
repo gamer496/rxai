@@ -1,26 +1,38 @@
 version: '3.8'
 
 services:
-  rxai:
+  backend:
     build: 
-      context: .
-      dockerfile: Dockerfile
+      context: ./backend
     ports:
-      - "8000:8000"
+      - "8080:8080"
     environment:
-      - NODE_ENV=production
-      - PORT=8000
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=8080
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_USERNAME=rxai_user
       - DB_PASSWORD=rxai_password
       - DB_DATABASE=rxai
-      - DROPBOX_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL}
-    restart: unless-stopped
-    depends_on:
-      - mysql
+      - DROPBOX_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run start:dev
+
+  ui:
+    build:
+      context: ./ui
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+    command: npm start
 
   mysql:
     image: mysql:8.0
@@ -33,7 +45,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password
 
 volumes:
   mysql_data:
