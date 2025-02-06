@@ -62,4 +62,17 @@ export class PrescriptionsService {
       relations: ['customer'],
     });
   }
+
+  async findOne(id: number): Promise<Prescription> {
+    return this.prescriptionsRepository.findOneBy({ id });
+  }
+
+  async update(id: number, prescription: Partial<Prescription>): Promise<Prescription> {
+    await this.prescriptionsRepository.update(id, prescription);
+    return this.findOne(id);
+  }
+
+  async findDoctor(id: number): Promise<Doctor> {
+    return this.doctorsRepository.findOneBy({ id });
+  }
 } 

@@ -33,6 +33,9 @@ export class Prescription {
   @Column({ type: 'text', nullable: true })
   transcript: string;
 
+  @Column({ default: false })
+  approved: boolean;
+
   @ManyToOne(() => Doctor, doctor => doctor.prescriptions)
   doctor: Doctor;
 

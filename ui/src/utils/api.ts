@@ -73,6 +73,10 @@ export const prescriptionApi = {
     const response = await api.post('/customer/prescriptions', { prescriptionUrl });
     return response.data;
   },
+  approve: async (prescriptionId: number) => {
+    const response = await api.post(`/doctor/prescriptions/${prescriptionId}/approve`);
+    return response.data;
+  },
   // Add other prescription-related endpoints
 };
 

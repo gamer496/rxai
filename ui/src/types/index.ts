@@ -6,6 +6,7 @@ export interface Prescription {
   transcript?: string;
   prescriptionUrl?: string;
   createdAt: string;
+  approved?: boolean;
 }
 
 export interface ChatAgent {

@@ -5,6 +5,7 @@ import { Doctor } from '../../doctors/entities/doctor.entity';
 import { Prescription } from '../entities/prescription.entity';
 import { GeneratePrescriptionDto } from '../dto/generate-prescription.dto';
 import { LoggerService } from '../../shared/services/logger.service';
+import { randomUUID } from 'crypto';
 
 @Controller('prescriptions/generate')
 export class PrescriptionGenerationController {
@@ -35,6 +36,8 @@ export class PrescriptionGenerationController {
       medicineType: generatePrescriptionDto.medicineType,
       customer: { id: generatePrescriptionDto.customerId },
       doctor: randomDoctor,
+      name: randomUUID(),
+      url: ''
     });
 
     return this.prescriptionsRepository.save(prescription);

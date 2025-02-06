@@ -135,39 +135,41 @@ const Home: React.FC = () => {
               <Typography variant="h5" sx={{ mt: 4, mb: 2 }}>
                 Prescriptions
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  style={{ display: 'none' }}
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                />
-                <Button
-                  variant="contained"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading || processing}
-                >
-                  {uploading ? 'Uploading...' : processing ? 'Processing...' : 'Upload Prescription'}
-                </Button>
-                {(uploading || processing) && (
-                  <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress
-                      variant={uploading ? "determinate" : "indeterminate"}
-                      value={uploadProgress}
-                      size={20}
-                    />
-                    <Typography variant="caption">
-                      {uploading ? `${Math.round(uploadProgress)}%` : 'Processing...'}
+              {userType === 'customer' && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    style={{ display: 'none' }}
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading || processing}
+                  >
+                    {uploading ? 'Uploading...' : processing ? 'Processing...' : 'Upload Prescription'}
+                  </Button>
+                  {(uploading || processing) && (
+                    <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress
+                        variant={uploading ? "determinate" : "indeterminate"}
+                        value={uploadProgress}
+                        size={20}
+                      />
+                      <Typography variant="caption">
+                        {uploading ? `${Math.round(uploadProgress)}%` : 'Processing...'}
+                      </Typography>
+                    </Box>
+                  )}
+                  {uploadError && (
+                    <Typography color="error" variant="caption">
+                      {uploadError}
                     </Typography>
-                  </Box>
-                )}
-                {uploadError && (
-                  <Typography color="error" variant="caption">
-                    {uploadError}
-                  </Typography>
-                )}
-              </Box>
+                  )}
+                </Box>
+              )}
             </Box>
             {loading ? (
               <Typography>Loading prescriptions...</Typography>
@@ -180,8 +182,38 @@ const Home: React.FC = () => {
                       <ListItem>
                         <ListItemText
                           primary={prescription.name}
-                          secondary={`Medicine Type: ${prescription.medicineType} • Created: ${new Date(prescription.createdAt).toLocaleDateString()}`}
+                          secondary={
+                            <>
+                              <div>{`Medicine Type: ${prescription.medicineType} • Created: ${new Date(prescription.createdAt).toLocaleDateString()}`}</div>
+                              {userType === 'doctor' && prescription.transcript && (
+                                <div style={{ marginTop: 8 }}>
+                                  <strong>Transcript:</strong> {prescription.transcript}
+                                </div>
+                              )}
+                            </>
+                          }
                         />
+                        {userType === 'doctor' && !prescription.approved && (
+                          <ListItemSecondaryAction>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              size="small"
+                              onClick={async () => {
+                                try {
+                                  await prescriptionApi.approve(prescription.id);
+                                  // Refresh prescriptions list
+                                  const data = await prescriptionApi.getDoctorPrescriptions();
+                                  setPrescriptions(data);
+                                } catch (err) {
+                                  console.error('Failed to approve prescription:', err);
+                                }
+                              }}
+                            >
+                              Approve
+                            </Button>
+                          </ListItemSecondaryAction>
+                        )}
                         {userType === 'customer' && (
                           <ListItemSecondaryAction>
                             <Button
