@@ -1,25 +1,39 @@
-# compiled output
-/dist
-/node_modules
+# Dependencies
+node_modules
+
+# Production
+build
+dist
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.idea
+.vscode
+
+# OS
+.DS_Store
 
 # Logs
 logs
 *.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 lerna-debug.log*
-
-# OS
-.DS_Store
 
 # Tests
 /coverage
 /.nyc_output
 
 # IDEs and editors
-/.idea
 .project
 .classpath
 .c9/
@@ -31,11 +45,6 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-# Environment
-.env
-.env.*
-!.env.example
 
 # Credentials
 rxai-450010-dcef583435c8.json
